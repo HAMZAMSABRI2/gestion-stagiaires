@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello DashboardController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+</style>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+
+<div class="example-wrapper">
+ <button class="btn btn-danger m-auto"> Fermer la session</button>   
+    <h1>Gestions des stagiaires</h1>
+
+
+    <div class="card w-100" style="width: 18rem;">
+        <div class="card-body">
+            {{ form_start(form) }}
+
+            <div class="mb-3">
+                {{ form_row(form.nom, {'attr': {'placeholder': 'nom de stagiaires', 'class': 'form-control'}}) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.prenom, {'attr': {'placeholder': 'prenom de stagiaires', 'class': 'form-control'}}) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.poste, {'attr': {'placeholder': 'poste de stagiaires', 'class': 'form-control'}}) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_row(form.duree_stage, {'attr': {'placeholder': 'duree de stage', 'class': 'form-control'}}) }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Ajouter</button>
+            
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <h3>Les stagiaires</h3>
+<div class="card w-100">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">id</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Prenom</th>
+                    <th scope="col">Poste</th>
+                    <th scope="col">Duree de stage</th>
+                    <th scope="col">Modification</th>
+                    <th scope="col">Suppression</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stagiaire in stagiaires %}
+                    <tr>
+                    <td>{{ stagiaire.id }}</td>
+                        <td>{{ stagiaire.nom }}</td>
+                        <td>{{ stagiaire.prenom }}</td>
+                        <td>{{ stagiaire.poste }}</td>
+                        <td>{{ stagiaire.getDureeStage }}</td>
+                        <td><a href="{{path('edit',{id:stagiaire.id}) }}" class="btn btn-info">Modifier</a></td>
+                        <td><a href="{{path('delete',{id:stagiaire.id}) }}" class="btn btn-info">Supprimer</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+</div>
+{% endblock %}
