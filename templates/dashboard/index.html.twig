@@ -53,6 +53,7 @@
                     <th scope="col">Duree de stage</th>
                     <th scope="col">Modification</th>
                     <th scope="col">Suppression</th>
+                    <th scope="col">télécharger</th>
                 </tr>
             </thead>
             <tbody>
@@ -65,6 +66,10 @@
                         <td>{{ stagiaire.getDureeStage }}</td>
                         <td><a href="{{path('edit',{id:stagiaire.id}) }}" class="btn btn-info">Modifier</a></td>
                         <td><a href="{{path('delete',{id:stagiaire.id}) }}" class="btn btn-info">Supprimer</a></td>
+                        <td><a href="{{ path('app_pdf', {id: stagiaire.id}) }}" target="_blank" download="stagiaire.pdf" class="btn btn-success" target="_blank">
+                                        Télécharger PDF
+                                    </a>
+                                    </td>
                     </tr>
                 {% endfor %}
             </tbody>

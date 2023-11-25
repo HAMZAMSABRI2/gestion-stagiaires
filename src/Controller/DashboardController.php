@@ -10,6 +10,9 @@ use App\Entity\Stagiaire;
 use App\Form\StagiaireType;
 use App\Repository\StagiaireRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
+use Knp\Snappy\Pdf;
+use Psr\Log\LoggerInterface;
 
 class DashboardController extends AbstractController
 {
@@ -108,6 +111,49 @@ class DashboardController extends AbstractController
         return $this->redirectToRoute('app_dashboard');
 
     }
+
+    #[Route('/pdf/{id}', name: 'app_pdf', methods: ['GET'])]
+public function generatePdf(int $id, Pdf $pdf, StagiaireRepository $stagiaireRepository, LoggerInterface $logger): Response
+{
+    try {
+        // Find the Stagiaire by ID
+        $stagiaire = $stagiaireRepository->find($id);
+
+        if (!$stagiaire) {
+            // Handle the case when the entity with the given ID is not found.
+            throw new EntityNotFoundException('Stagiaire not found');
+        }
+
+        // Render the Twig template with the fetched stagiaire
+        $html = $this->renderView('pdf/index.html.twig', ['stagiaire' => $stagiaire]);
+
+        $filename = 'synthese_stagiaire_' . $stagiaire->getNom() . '.pdf';
+
+        return new Response(
+            $pdf->getOutputFromHtml($html),
+            200,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0'
+            ]
+        );
+    } catch (EntityNotFoundException $e) {
+        // Log the error
+        $logger->error('Stagiaire not found: ' . $e->getMessage());
+
+        // Optionally, you can render a dedicated error template or redirect the user to an error page.
+        return new Response('Stagiaire not found. Please try again later.');
+    } catch (\Exception $e) {
+        // Log the error
+        $logger->error('An error occurred while generating PDF: ' . $e->getMessage());
+
+        // Optionally, you can render a dedicated error template or redirect the user to an error page.
+        return new Response('An error occurred. Please try again later.');
+    }
+}
+
+    
     
     
     
