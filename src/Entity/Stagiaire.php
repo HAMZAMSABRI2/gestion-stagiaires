@@ -77,4 +77,19 @@ class Stagiaire
 
         return $this;
     }
+
+    public function getFilename(): string
+    {
+        // Customize this method based on how you want to generate the filename
+        $filename = sprintf('%s.pdf', $this->slugify($this->getNom()));
+        // return  $this->getNom() . '.pdf';
+        
+        return $filename;
+    }
+
+    private function slugify(string $text): string
+    {
+
+        return strtolower(str_replace(' ', '_', $text));
+    }
 }

@@ -13,6 +13,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Knp\Snappy\Pdf;
 use Psr\Log\LoggerInterface;
+use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
+
+
+
 
 class DashboardController extends AbstractController
 {
@@ -20,19 +24,16 @@ class DashboardController extends AbstractController
     public function index(StagiaireRepository $repository): Response
     {
         try {
-            // Fetch all stagiaires from the repository
             $stagiaires = $repository->findAll();
 
-            // Dump the fetched data for debugging
             var_dump($stagiaires);
 
-            // Render the Twig template with the fetched stagiaires
+            
             return $this->render('all/index.html.twig', [
                 'stagiaires' => $stagiaires,
             ]);
         } catch (\Exception $e) {
-            // Handle any exceptions that may occur during the process
-            // Log or display the error message as needed
+
             return new Response('An error occurred: ' . $e->getMessage());
         }
     }
@@ -41,7 +42,7 @@ class DashboardController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager, StagiaireRepository $repository): Response
     {
         try {
-            // Fetch all stagiaires from the repository
+            
             $stagiaires = $repository->findAll();
 
             $stagiaire = new Stagiaire();
@@ -53,17 +54,16 @@ class DashboardController extends AbstractController
                 $entityManager->persist($stagiaire);
                 $entityManager->flush();
 
-                // Redirect to another page or return a response
-                return $this->redirectToRoute('app_dashboard'); // Change this to the desired route
+                
+                return $this->redirectToRoute('app_dashboard'); 
             }
 
             return $this->render('dashboard/index.html.twig', [
-                'stagiaires' => $stagiaires, // Pass the variable to the template
+                'stagiaires' => $stagiaires, 
                 'form' => $form->createView(),
             ]);
         } catch (\Exception $e) {
-            // Handle any exceptions that may occur during the process
-            // Log or display the error message as needed
+
             return new Response('An error occurred: ' . $e->getMessage());
         }
     }
@@ -81,16 +81,15 @@ class DashboardController extends AbstractController
                 $manager->persist($stagiaire);
                 $manager->flush();
     
-                // Redirect to another page or return a response
-                return $this->redirectToRoute('app_dashboard'); // Change this to the desired route
+                
+                return $this->redirectToRoute('app_dashboard'); 
             }
     
             return $this->render('edit/index.html.twig', [
                 'form' => $form->createView(),
             ]);
         } catch (\Exception $e) {
-            // Handle any exceptions that may occur during the process
-            // Log or display the error message as needed
+            
             return new Response('An error occurred: ' . $e->getMessage());
         }
     }
@@ -102,7 +101,7 @@ class DashboardController extends AbstractController
         $stagiaire = $repository->find($id);
     
         if (!$stagiaire) {
-            // Handle the case when the entity with the given ID is not found, e.g., throw an exception or return a response.
+            
         }
     
         $manager->remove($stagiaire);
@@ -111,47 +110,43 @@ class DashboardController extends AbstractController
         return $this->redirectToRoute('app_dashboard');
 
     }
-
     #[Route('/pdf/{id}', name: 'app_pdf', methods: ['GET'])]
-public function generatePdf(int $id, Pdf $pdf, StagiaireRepository $stagiaireRepository, LoggerInterface $logger): Response
-{
-    try {
-        // Find the Stagiaire by ID
-        $stagiaire = $stagiaireRepository->find($id);
-
-        if (!$stagiaire) {
-            // Handle the case when the entity with the given ID is not found.
-            throw new EntityNotFoundException('Stagiaire not found');
+    public function generatePdf(int $id, Pdf $pdf, StagiaireRepository $stagiaireRepository, LoggerInterface $logger): Response
+    {
+        try {
+            $stagiaire = $stagiaireRepository->find($id);
+    
+            if (!$stagiaire) {
+                throw new EntityNotFoundException('Stagiaire not found');
+            }
+    
+            
+            $html = $this->renderView('pdf/index.html.twig', array('stagiaire' => $stagiaire));
+    
+            return new Response(
+                $pdf->getOutputFromHtml($html),
+                Response::HTTP_OK,
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="stagiaire-' . $stagiaire->getFilename() . '.pdf"',
+                ]
+            );
+        } catch (EntityNotFoundException $e) {
+            
+            $logger->error('Stagiaire not found: ' . $e->getMessage());
+    
+          
+            return new Response('Stagiaire not found. Please try again later.');
+        } catch (\Exception $e) {
+            
+            $logger->error('An error occurred while generating PDF: ' . $e->getMessage());
+    
+            
+            return new Response('An error occurred. Please try again later.');
         }
-
-        // Render the Twig template with the fetched stagiaire
-        $html = $this->renderView('pdf/index.html.twig', ['stagiaire' => $stagiaire]);
-
-        $filename = 'synthese_stagiaire_' . $stagiaire->getNom() . '.pdf';
-
-        return new Response(
-            $pdf->getOutputFromHtml($html),
-            200,
-            [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0'
-            ]
-        );
-    } catch (EntityNotFoundException $e) {
-        // Log the error
-        $logger->error('Stagiaire not found: ' . $e->getMessage());
-
-        // Optionally, you can render a dedicated error template or redirect the user to an error page.
-        return new Response('Stagiaire not found. Please try again later.');
-    } catch (\Exception $e) {
-        // Log the error
-        $logger->error('An error occurred while generating PDF: ' . $e->getMessage());
-
-        // Optionally, you can render a dedicated error template or redirect the user to an error page.
-        return new Response('An error occurred. Please try again later.');
     }
-}
+    
+    
 
     
     

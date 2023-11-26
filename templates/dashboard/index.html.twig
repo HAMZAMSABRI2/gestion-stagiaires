@@ -10,7 +10,7 @@
 
 
 <div class="example-wrapper">
- <button class="btn btn-danger m-auto"> Fermer la session</button>   
+ <a class="btn btn-danger m-auto" href="{{ path('app_logout') }}"> Fermer la session</a>   
     <h1>Gestions des stagiaires</h1>
 
 
@@ -66,10 +66,12 @@
                         <td>{{ stagiaire.getDureeStage }}</td>
                         <td><a href="{{path('edit',{id:stagiaire.id}) }}" class="btn btn-info">Modifier</a></td>
                         <td><a href="{{path('delete',{id:stagiaire.id}) }}" class="btn btn-info">Supprimer</a></td>
-                        <td><a href="{{ path('app_pdf', {id: stagiaire.id}) }}" target="_blank" download="stagiaire.pdf" class="btn btn-success" target="_blank">
-                                        Télécharger PDF
-                                    </a>
-                                    </td>
+                        <td>
+                            <a href="{{ path('app_pdf', {id: stagiaire.id}) }}" class="btn btn-success" download="{{ stagiaire.getFilename() }}">
+                                Télécharger PDF
+                            </a>
+                        </td>
+
                     </tr>
                 {% endfor %}
             </tbody>
